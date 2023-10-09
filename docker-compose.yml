@@ -1,17 +1,44 @@
-version: '3.1'
-
-services:
-  postgres:
-    image: postgres:latest
-    container_name: postgres_container
-    environment:
-      POSTGRES_USER: fmjp
-      POSTGRES_PASSWORD: fmjp
-      POSTGRES_DB: mememo
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+version: "3.9"
 
 volumes:
-  postgres_data:
+  db-store:
+
+services:
+  web:
+    container_name: web
+    build:
+      context: ./
+      dockerfile: ./infra/development/nginx/Dockerfile
+    ports:
+      - 8080:80
+
+  front:
+    container_name: front
+    image: node:18.18-alpine3.18
+    volumes:
+      - ./frontend:/frontend
+    working_dir: /frontend
+    command: sh -c "npm run dev"
+    ports:
+      - 3000:3000
+
+  back:
+    container_name: back
+    image: node:18.18-alpine3.18
+    volumes:
+      - ./backend:/backend
+    working_dir: /backend
+    command: sh -c "npm run start:dev"
+    ports:
+      - 2000:2000
+
+  db:
+    image: mongo:latest
+    container_name: db
+    volumes:
+      - db-store:/data/db
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: fmjp
+      MONGO_INITDB_ROOT_PASSWORD: fmjp
