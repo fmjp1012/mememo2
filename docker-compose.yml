@@ -24,7 +24,7 @@ services:
 
   back:
     container_name: back
-    image: node:18.18-alpine3.18
+    image: node:14.17.0-alpine3.13
     volumes:
       - ./backend:/backend
     working_dir: /backend
